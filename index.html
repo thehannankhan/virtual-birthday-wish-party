@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HBD Jo!</title>
+    <title>HBD Jo! - Party Edition</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:wght@100..900&display=swap" rel="stylesheet">
@@ -22,15 +22,15 @@
             overflow: hidden;
         }
 
-        /* The container for all falling pieces */
+        /* Confetti layer - sits behind text but in front of background */
         #confetti-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* VERY IMPORTANT: allows clicking through to the button */
-            z-index: 1; /* Sits behind the main content */
+            pointer-events: none;
+            z-index: 1; 
         }
 
         .main-container {
@@ -41,13 +41,14 @@
             min-height: 100vh;
             text-align: center;
             position: relative;
-            z-index: 10; /* Above the confetti */
+            z-index: 10;
         }
 
         #status-heading {
             color: #333;
             margin-bottom: 25px;
             font-size: 2.5rem;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
         }
 
         .avatar {
@@ -58,13 +59,20 @@
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        /* THE BOUNCE ANIMATION */
+        @keyframes party-bounce {
+            0%, 100% { transform: scale(1.1) translateY(0) rotate(3deg); }
+            50% { transform: scale(1.2) translateY(-20px) rotate(-3deg); }
+        }
+
         .party-avatar {
-            transform: scale(1.1) rotate(5deg);
+            animation: party-bounce 0.5s infinite ease-in-out;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
         }
 
         #celebrate-btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 18px 50px;
+            font-size: 1.4rem;
             font-weight: bold;
             font-family: "Sour Gummy", sans-serif;
             background-color: #b179ff;
@@ -73,9 +81,9 @@
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(177, 121, 255, 0.4);
+            box-shadow: 0 6px 20px rgba(177, 121, 255, 0.4);
             position: relative;
-            z-index: 20; /* Highest layer: Guaranteed clickable */
+            z-index: 20; /* Guaranteed on top */
         }
 
         #celebrate-btn:hover {
@@ -85,29 +93,24 @@
 
         .reset-mode {
             background-color: #ff6060 !important;
-            box-shadow: 0 4px 15px rgba(255, 96, 96, 0.4) !important;
+            box-shadow: 0 6px 20px rgba(255, 96, 96, 0.4) !important;
         }
 
-        /* Confetti Piece Styling */
+        /* Confetti Style */
         .confetti-piece {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: #f00;
             top: -20px;
-            opacity: 0.8;
+            opacity: 0.9;
             animation: fall linear forwards;
         }
 
-        /* The Animation: Falling and Swaying */
+        /* Increased Speed in Animation */
         @keyframes fall {
             0% {
                 transform: translateY(0) rotate(0deg) translateX(0);
-                opacity: 1;
             }
             100% {
-                transform: translateY(110vh) rotate(720deg) translateX(50px);
-                opacity: 0;
+                transform: translateY(110vh) rotate(1080deg) translateX(100px);
             }
         }
     </style>
@@ -136,35 +139,36 @@
         let isCelebrating = false;
         let confettiInterval;
 
-        const colors = ['#b179ff', '#ff6060', '#00e676', '#ffea00', '#ffffff', '#4db8ff'];
+        const colors = ['#ff0055', '#00ffcc', '#ffcc00', '#ae00ff', '#ffffff', '#0099ff', '#ff6600'];
 
         function createPiece() {
             const piece = document.createElement('div');
             piece.className = 'confetti-piece';
             
-            // Randomize appearance
             const color = colors[Math.floor(Math.random() * colors.length)];
-            const left = Math.floor(Math.random() * 100) + 'vw';
-            const duration = (Math.random() * 3 + 2) + 's'; // 2-5 seconds
-            const size = (Math.random() * 8 + 5) + 'px';
+            const left = Math.random() * 100 + 'vw';
+            
+            // SPEED INCREASED: Duration is now between 0.8s and 2s (much faster)
+            const duration = (Math.random() * 1.2 + 0.8) + 's'; 
+            const size = (Math.random() * 12 + 6) + 'px';
 
             piece.style.backgroundColor = color;
             piece.style.left = left;
             piece.style.width = size;
             piece.style.height = size;
             piece.style.animationDuration = duration;
+            
+            // Randomly make some pieces circles
+            if(Math.random() > 0.5) piece.style.borderRadius = '50%';
 
             container.appendChild(piece);
 
-            // Clean up the element after it falls to keep the page fast
-            setTimeout(() => {
-                piece.remove();
-            }, 5000);
+            // Fast cleanup
+            setTimeout(() => { piece.remove(); }, 2500);
         }
 
         button.onclick = function() {
             if (!isCelebrating) {
-                // START
                 isCelebrating = true;
                 heading.innerText = "Happy Birthday! 🕺";
                 button.innerText = "Stop the Party";
@@ -172,12 +176,11 @@
                 avatar.src = "avatar02.png";
                 avatar.classList.add('party-avatar');
                 
-                music.play().catch(() => console.log("Music blocked by browser policy"));
+                music.play().catch(() => console.log("Audio play blocked."));
 
-                // Start creating pieces every 150ms
-                confettiInterval = setInterval(createPiece, 150);
+                // QUANTITY INCREASED: Spawns every 40ms (very dense)
+                confettiInterval = setInterval(createPiece, 40);
             } else {
-                // STOP
                 isCelebrating = false;
                 heading.innerText = "Ready for a Party?";
                 button.innerText = "Start the Party!";
@@ -189,7 +192,7 @@
                 music.currentTime = 0;
 
                 clearInterval(confettiInterval);
-                container.innerHTML = ''; // Clear all current confetti
+                container.innerHTML = '';
             }
         };
     </script>
